@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz : Positionnement, Panels, et Pyramide de Maslow</title>
+    <style>
+        body {
+            font-family: 'Mayan', sans-serif;
+            margin: 0;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+            text-align: center;
+        }
+        .quiz-container, .summary {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-image: url('images/back.jpg.webp');
+            background-size: cover;
+            background-position: center;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+        .choices {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-left: 20%;
+        }
+        .choices li {
+            margin: 8px 0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #FF0000;
+            color: white;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #CC0000;
+        }
+        .summary {
+            display: none;
+        }
+        .summary ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary li {
+            text-align: left;
+            margin-left: 20%;
+            margin-bottom: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .quiz-container, .summary {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .quiz-container, .summary {
+                padding: 10px;
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .question {
+                font-size: 16px;
+            }
+            button {
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 10px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .quiz-container, .summary {
+                max-width: 800px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-container">
+    <h2>Quiz : Positionnement en Marketing</h2>
+    <div id="question-container">
+        <!-- Les questions seront affichées ici dynamiquement -->
+    </div>
+    <button id="next-button" onclick="nextQuestion()">Suivant</button>
+</div>
+
+<div class="summary" id="summary">
+    <h3>Récapitulatif</h3>
+    <ul id="summary-list">
+        <!-- Le récapitulatif des réponses sera affiché ici -->
+    </ul>
+    <div class="score" id="score"></div>
+    <button onclick="restartQuiz()">Recommencer</button>
+</div>
+
+<script>
+    const quizData = [
+        // Quiz sur le Positionnement en Marketing
+        { question: "Qu'est-ce que le positionnement en marketing ?", choices: ["La conception de nouveaux produits", "La place qu'occupe un produit ou une marque dans l'esprit des consommateurs par rapport à ses concurrents", "La fixation des prix des produits", "L'amélioration des processus de production"], correct: 1 },
+        { question: "Quel est l'objectif principal du positionnement en marketing ?", choices: ["Réduire les coûts de production", "Différencier une entreprise sur le marché", "Augmenter le nombre de produits offerts", "Réduire le nombre de concurrents"], correct: 1 },
+        { question: "Quels sont les éléments clés d'un énoncé de positionnement ?", choices: ["Coût de production et budget marketing", "Bénéfices distinctifs du produit et perception désirée par les consommateurs", "Stratégie de distribution et coûts logistiques", "Plan de réduction des prix et promotion des ventes"], correct: 1 },
+        { question: "Comment le positionnement aide-t-il à la communication de marque ?", choices: ["En réduisant le budget de publicité", "En facilitant la communication des avantages et des valeurs de la marque de façon claire et concise", "En augmentant le nombre de canaux de distribution", "En réduisant le nombre de produits offerts"], correct: 1 },
+        { question: "Quel exemple correspond au positionnement de Volvo selon le document ?", choices: ["Luxe et prestige", "Sécurité", "Performance et énergie", "Innovation et design de qualité"], correct: 1 },
+        { question: "Quel est un des bénéfices de créer une connexion émotionnelle avec les consommateurs ?", choices: ["Réduire les coûts de production", "Augmenter les prix des produits", "Augmenter la fidélité à la marque", "Diminuer les investissements en publicité"], correct: 2 },
+        { question: "Quel outil visuel peut être utilisé pour illustrer le positionnement d'un produit par rapport à la concurrence ?", choices: ["Tableau de bord", "Analyse SWOT", "Graphe de production", "Mapping de position"], correct: 3 },
+        { question: "Qu'est-ce qui est essentiel pour choisir un positionnement ?", choices: ["Analyser les capacités internes, les besoins des consommateurs et la compétitivité du marché", "Réduire le nombre de concurrents", "Augmenter le budget marketing", "Diversifier les produits offerts"], correct: 0 },
+        { question: "Quelle entreprise utilise le slogan \"Accelerating the world's transition to sustainable energy\" pour son positionnement ?", choices: ["Apple", "Volvo", "Red Bull", "Tesla"], correct: 3 },
+        { question: "Pourquoi est-il important d'évaluer son positionnement régulièrement ?", choices: ["Pour réduire les coûts de production", "Pour ajuster le positionnement en fonction des changements dans les perceptions des consommateurs ou des conditions de marché", "Pour augmenter les prix des produits", "Pour réduire le nombre de produits offerts"], correct: 1 },
+
+        // Quiz sur la Définition des Panels
+        { question: "Qu'est-ce qu'un panel en marketing ?", choices: ["Un groupe de discussion pour évaluer des concepts", "Un échantillon d'individus, de ménages ou de magasins suivi dans le temps pour mesurer et analyser des changements dans leurs comportements ou performances", "Un outil pour fixer les prix des produits", "Une méthode pour augmenter les ventes immédiatement"], correct: 1 },
+        { question: "Quels sont les types de panels mentionnés dans le document ?", choices: ["Panel de consommateurs et panel de distributeurs", "Panel de producteurs et panel de distributeurs", "Panel de fournisseurs et panel de clients", "Panel de consommateurs et panel de fabricants"], correct: 0 },
+        { question: "Quel est l'objectif principal des panels de consommateurs ?", choices: ["Mesurer les performances des points de vente", "Suivre les achats et comportements des consommateurs", "Évaluer les tendances de production", "Fixer les prix des produits"], correct: 1 },
+        { question: "Quelle donnée n'est pas typiquement collectée par un panel de distributeurs ?", choices: ["Ventes de produits", "Motivations d'achat des consommateurs", "Stocks", "Prix pratiqués"], correct: 1 },
+        { question: "Quelle est l'utilité principale des panels de distributeurs ?", choices: ["Suivre les préférences des clients", "Suivre les performances des produits à travers les points de vente", "Évaluer les motivations d'achat", "Augmenter immédiatement les ventes"], correct: 1 },
+        { question: "Quel exemple spécifique de panel utilise le scan de codes-barres en caisse dans les grandes distributions ?", choices: ["Kantar Worldpanel", "Nielsen ScanTrack", "Panel de consommateurs", "Panel de distributeurs"], correct: 1 },
+        { question: "Quel type de panel utilise des scannettes pour suivre les achats des ménages ?", choices: ["Kantar Worldpanel", "Nielsen ScanTrack", "Panel de distributeurs", "Panel de fabricants"], correct: 0 },
+        { question: "Quelle technique d'analyse évalue où et comment les produits sont vendus ?", choices: ["Analyse des ventes et marketing", "Suivi de la distribution", "Mesure de l'impact promotionnel", "Analyse de la production"], correct: 1 },
+        { question: "Quelle technique d'analyse examine l'effet des différentes actions marketing sur les ventes ?", choices: ["Analyse des ventes et marketing", "Suivi de la distribution", "Mesure de l'impact promotionnel", "Analyse de la production"], correct: 2 },
+        { question: "Quelle technique d'analyse mesure l'efficacité des campagnes promotionnelles?", choices: ["Analyse des ventes et marketing", "Suivi de la distribution", "Mesure de l'impact promotionnel", "Analyse de la production"], correct: 2 },
+
+        // Quiz sur la Pyramide de Maslow
+        { question: "Quelle est la première et la plus fondamentale catégorie de besoins dans la pyramide de Maslow ?", choices: ["Besoins de sécurité", "Besoins physiologiques", "Besoins d'appartenance et d'amour", "Besoins d'estime"], correct: 1 },
+        { question: "Quel type de besoin se trouve au sommet de la pyramide de Maslow ?", choices: ["Besoins de sécurité", "Besoins d'estime", "Besoins d'appartenance et d'amour", "Besoin d'auto-actualisation"], correct: 3 },
+        { question: "Quels besoins sont liés à la sécurité physique et à la stabilité financière selon la pyramide de Maslow ?", choices: ["Besoins de sécurité", "Besoins physiologiques", "Besoins d'appartenance et d'amour", "Besoins d'estime"], correct: 0 },
+        { question: "Quel niveau de la pyramide de Maslow inclut les besoins de relations amicales et amoureuses ?", choices: ["Besoins physiologiques", "Besoins de sécurité", "Besoins d'appartenance et d'amour", "Besoins d'estime"], correct: 2 },
+        { question: "Quels besoins sont associés à l'estime de soi et à la reconnaissance sociale dans la pyramide de Maslow ?", choices: ["Besoins physiologiques", "Besoins de sécurité", "Besoins d'appartenance et d'amour", "Besoins d'estime"], correct: 3 },
+        { question: "Quel type de besoin est satisfait par l'accomplissement personnel et la réalisation de son potentiel selon Maslow ?", choices: ["Besoins physiologiques", "Besoins de sécurité", "Besoins d'appartenance et d'amour", "Besoin d'auto-actualisation"], correct: 3 },
+        { question: "Dans la pyramide de Maslow, quel besoin doit être satisfait avant de pouvoir atteindre les besoins d'estime ?", choices: ["Besoin d'auto-actualisation", "Besoins d'estime", "Besoins d'appartenance et d'amour", "Besoins physiologiques"], correct: 2 },
+        { question: "Quels besoins incluent la nourriture, l'eau, le sommeil et la respiration dans la pyramide de Maslow ?", choices: ["Besoins physiologiques", "Besoins de sécurité", "Besoins d'appartenance et d'amour", "Besoins d'estime"], correct: 0 },
+        { question: "Quel besoin est souvent associé à la recherche de sens et à la créativité selon Maslow ?", choices: ["Besoins de sécurité", "Besoins d'estime", "Besoin d'auto-actualisation", "Besoins d'appartenance et d'amour"], correct: 2 },
+        { question: "Pourquoi la pyramide de Maslow est-elle importante pour comprendre le comportement des consommateurs ?", choices: ["Pour déterminer les prix des produits", "Pour comprendre les motivations des consommateurs à différents niveaux de besoin", "Pour identifier les tendances de production", "Pour réduire les coûts de production"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedAnswers = [];
+
+    function loadQuestion() {
+        const container = document.getElementById('question-container');
+        container.innerHTML = '';
+
+        const questionData = quizData[currentQuestionIndex];
+        const questionElem = document.createElement('div');
+        questionElem.className = 'question';
+        questionElem.textContent = questionData.question;
+
+        const choicesElem = document.createElement('ul');
+        choicesElem.className = 'choices';
+
+        questionData.choices.forEach((choice, index) => {
+            const choiceElem = document.createElement('li');
+            const choiceInput = document.createElement('input');
+            choiceInput.type = 'radio';
+            choiceInput.name = 'choice';
+            choiceInput.value = index;
+            choiceInput.id = `choice${index}`;
+            
+            const choiceLabel = document.createElement('label');
+            choiceLabel.htmlFor = `choice${index}`;
+            choiceLabel.textContent = choice;
+
+            choiceElem.appendChild(choiceInput);
+            choiceElem.appendChild(choiceLabel);
+            choicesElem.appendChild(choiceElem);
+        });
+
+        container.appendChild(questionElem);
+        container.appendChild(choicesElem);
+    }
+
+    function nextQuestion() {
+        const selectedChoice = document.querySelector('input[name="choice"]:checked');
+        if (!selectedChoice) {
+            alert("Veuillez sélectionner une réponse !");
+            return;
+        }
+
+        selectedAnswers.push(parseInt(selectedChoice.value));
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showSummary();
+        }
+    }
+
+    function showSummary() {
+        document.getElementById('quiz-container').style.display = 'none';
+        const summary = document.getElementById('summary');
+        summary.style.display = 'block';
+
+        const summaryList = document.getElementById('summary-list');
+        summaryList.innerHTML = '';
+
+        let correctAnswers = 0;
+
+        quizData.forEach((q, index) => {
+            const summaryItem = document.createElement('li');
+            summaryItem.innerHTML = `
+                <strong>${q.question}</strong><br>
+                <div style="text-align: left; margin-left: 20%;">
+                    Votre réponse: ${q.choices[selectedAnswers[index]]} - 
+                    ${selectedAnswers[index] === q.correct ? '<span class="correct">Correct</span>' : '<span class="incorrect">Incorrect</span>'}<br>
+                    Bonne réponse: ${q.choices[q.correct]}
+                </div>
+            `;
+            summaryList.appendChild(summaryItem);
+            if (selectedAnswers[index] === q.correct) {
+                correctAnswers++;
+            }
+        });
+
+        document.getElementById('score').textContent = `Score: ${correctAnswers} / ${quizData.length}`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        document.getElementById('summary').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
